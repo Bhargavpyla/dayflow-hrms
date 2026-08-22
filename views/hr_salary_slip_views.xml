@@ -41,6 +41,7 @@
                             <field name="payable_days"/>
                             <field name="gross_earnings"/>
                             <field name="total_deductions"/>
+                            <field name="employer_cost"/>
                             <field name="net_pay"/>
                         </group>
                     </group>
@@ -88,15 +89,20 @@
     </record>
 
     <menuitem id="dayflow_menu_payroll"
-              name="Payroll"
-              action="dayflow_salary_slip_action"
-              parent="hr.menu_hr_root"
-              sequence="10"/>
+          name="Payroll"
+          parent="hr.menu_hr_root"
+          sequence="10"/>
+
+    <menuitem id="dayflow_menu_payroll_slips"
+          name="Salary Slips"
+          action="dayflow_salary_slip_action"
+          parent="dayflow_menu_payroll"
+          sequence="10"/>
 
     <menuitem id="dayflow_menu_payroll_config"
-              name="Salary Structure"
-              action="dayflow_salary_component_action"
-              parent="dayflow_menu_payroll"
-              groups="hr.group_hr_manager"
-              sequence="20"/>
+          name="Salary Structure"
+          action="dayflow_salary_component_action"
+          parent="dayflow_menu_payroll"
+          groups="hr.group_hr_manager"
+          sequence="20"/>
 </odoo>

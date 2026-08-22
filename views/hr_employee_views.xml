@@ -6,6 +6,8 @@
         <field name="model">hr.employee</field>
         <field name="inherit_id" ref="hr.view_employee_form"/>
         <field name="arch" type="xml">
+            
+            <!-- 1. This is your existing code for the top buttons -->
             <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
                 <button name="action_dayflow_open_attendance" type="object"
                         class="oe_stat_button" icon="fa-clock-o">
@@ -18,6 +20,42 @@
                     <field name="dayflow_pending_leaves" widget="statinfo" string="Pending Leaves"/>
                 </button>
             </xpath>
+
+                        <!-- Show the auto-generated Login ID on the HR Settings tab,
+                 read-only since it's system-generated, never hand-edited. -->
+            <xpath expr="//page[@name='hr_settings']" position="inside">
+                <group string="Dayflow Login" invisible="0">
+                    <field name="dayflow_employee_id" readonly="1"/>
+                </group>
+            </xpath>
+
+            <!-- 2. ADD THIS NEW XPATH TO CREATE THE TABS -->
+            <xpath expr="//notebook" position="inside">
+                
+                <!-- The Salary Info Tab (Restricted to HR Admins) -->
+                <page name="salary_info" string="Salary Info" groups="hr.group_hr_user">
+                    <group>
+                        <group string="Salary Components">
+                            <!-- You will map your custom Python fields here later -->
+                            <!-- <field name="dayflow_wage"/> -->
+                            <!-- <field name="dayflow_basic"/> -->
+                        </group>
+                        <group string="Tax Deductions">
+                            <!-- <field name="dayflow_pf"/> -->
+                        </group>
+                    </group>
+                </page>
+
+                <!-- The Security Tab -->
+                <page name="security_info" string="Security" groups="hr.group_hr_user">
+                    <group>
+                        <!-- <field name="dayflow_pan_no"/> -->
+                        <!-- <field name="dayflow_uan_no"/> -->
+                    </group>
+                </page>
+
+            </xpath>
+
         </field>
     </record>
 

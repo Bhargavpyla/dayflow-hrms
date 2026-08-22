@@ -61,7 +61,7 @@
         <field name="name">Provident Fund (Employer)</field>
         <field name="code">PF_EMPLOYER</field>
         <field name="sequence">80</field>
-        <field name="component_type">deduction</field>
+        <field name="component_type">employer_contribution</field>
         <field name="computation_type">pct_basic</field>
         <field name="value">12.0</field>
     </record>

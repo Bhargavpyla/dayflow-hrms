@@ -18,8 +18,16 @@ class DayflowSalaryComponent(models.Model):
     sequence = fields.Integer(default=10)
     code = fields.Char(required=True, help="e.g. BASIC, HRA, STD_ALLOW, PF_EMP")
     component_type = fields.Selection(
-        [('earning', 'Earning'), ('deduction', 'Deduction')],
+        [
+            ('earning', 'Earning'),
+            ('deduction', 'Deduction'),
+            ('employer_contribution', 'Employer Contribution (informational only)'),
+        ],
         default='earning', required=True,
+        help="Earning/Deduction affect the employee's Net Pay. Employer "
+             "Contribution (e.g. Employer PF) is money the company spends "
+             "on top of salary — shown for transparency, never subtracted "
+             "from what the employee actually receives."
     )
     computation_type = fields.Selection(
         [
@@ -62,6 +70,11 @@ class DayflowSalarySlip(models.Model):
 
     gross_earnings = fields.Monetary(compute='_compute_totals', store=True)
     total_deductions = fields.Monetary(compute='_compute_totals', store=True)
+    employer_cost = fields.Monetary(
+        compute='_compute_totals', store=True,
+        help="Company-side contributions (e.g. Employer PF) — informational, "
+             "not subtracted from Net Pay."
+    )
     net_pay = fields.Monetary(compute='_compute_totals', store=True)
 
     currency_id = fields.Many2one(
@@ -111,31 +124,46 @@ class DayflowSalarySlip(models.Model):
         for rec in self:
             earnings = sum(l.amount for l in rec.line_ids if l.component_type == 'earning')
             deductions = sum(l.amount for l in rec.line_ids if l.component_type == 'deduction')
+            employer = sum(l.amount for l in rec.line_ids if l.component_type == 'employer_contribution')
             rec.gross_earnings = earnings
             rec.total_deductions = deductions
+            rec.employer_cost = employer
+            # Employer contributions are company cost, not employee deductions —
+            # they never subtract from what the employee actually receives.
             rec.net_pay = earnings - deductions
 
     def action_generate_lines(self):
         """Runs the configured dayflow.salary.component set against this
-        slip's wage, in sequence, so 'remainder' components can see the
-        running total of everything computed before them — mirrors the
-        wireframe's 'Fixed Allowance = Wage - total of all other components'."""
+        slip's EFFECTIVE wage (monthly wage scaled by attendance), in
+        sequence, so 'remainder' components can see the running total of
+        everything computed before them — mirrors the wireframe's
+        'Fixed Allowance = Wage - total of all other components', while
+        also honoring 'unpaid leave / missing attendance reduces pay'."""
         Component = self.env['dayflow.salary.component']
         for rec in self:
             rec.line_ids.unlink()
+
+            if rec.total_working_days:
+                proration = rec.payable_days / rec.total_working_days
+            else:
+                proration = 0.0
+            effective_wage = rec.wage * proration
+
             components = Component.search([('active', '=', True)], order='sequence')
             basic_amount = 0.0
             running_total = 0.0
             lines_vals = []
             for comp in components:
                 if comp.computation_type == 'pct_wage':
-                    amount = rec.wage * (comp.value / 100.0)
+                    amount = effective_wage * (comp.value / 100.0)
                 elif comp.computation_type == 'pct_basic':
                     amount = basic_amount * (comp.value / 100.0)
                 elif comp.computation_type == 'fixed':
+                    # Fixed amounts (e.g. Professional Tax) are NOT prorated
+                    # by attendance — they're flat regardless of days worked.
                     amount = comp.value
                 else:  # remainder
-                    amount = rec.wage - running_total
+                    amount = effective_wage - running_total
 
                 if comp.code == 'BASIC':
                     basic_amount = amount
@@ -157,7 +185,11 @@ class DayflowSalarySlipLine(models.Model):
     slip_id = fields.Many2one('dayflow.salary.slip', required=True, ondelete='cascade')
     component_id = fields.Many2one('dayflow.salary.component', required=True)
     component_type = fields.Selection(
-        [('earning', 'Earning'), ('deduction', 'Deduction')], required=True,
+        [
+            ('earning', 'Earning'),
+            ('deduction', 'Deduction'),
+            ('employer_contribution', 'Employer Contribution'),
+        ], required=True,
     )
     amount = fields.Monetary()
     currency_id = fields.Many2one(related='slip_id.currency_id')
