@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Salary components, in the exact order/logic shown in the wireframe -->
+    <record id="dayflow_comp_basic" model="dayflow.salary.component">
+        <field name="name">Basic Salary</field>
+        <field name="code">BASIC</field>
+        <field name="sequence">10</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">pct_wage</field>
+        <field name="value">50.0</field>
+    </record>
+    <record id="dayflow_comp_hra" model="dayflow.salary.component">
+        <field name="name">House Rent Allowance</field>
+        <field name="code">HRA</field>
+        <field name="sequence">20</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">pct_basic</field>
+        <field name="value">50.0</field>
+    </record>
+    <record id="dayflow_comp_std_allow" model="dayflow.salary.component">
+        <field name="name">Standard Allowance</field>
+        <field name="code">STD_ALLOW</field>
+        <field name="sequence">30</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">pct_wage</field>
+        <field name="value">8.33</field>
+    </record>
+    <record id="dayflow_comp_bonus" model="dayflow.salary.component">
+        <field name="name">Performance Bonus</field>
+        <field name="code">PERF_BONUS</field>
+        <field name="sequence">40</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">pct_basic</field>
+        <field name="value">8.33</field>
+    </record>
+    <record id="dayflow_comp_lta" model="dayflow.salary.component">
+        <field name="name">Leave Travel Allowance</field>
+        <field name="code">LTA</field>
+        <field name="sequence">50</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">pct_basic</field>
+        <field name="value">8.333</field>
+    </record>
+    <record id="dayflow_comp_fixed_allow" model="dayflow.salary.component">
+        <field name="name">Fixed Allowance</field>
+        <field name="code">FIXED_ALLOW</field>
+        <field name="sequence">60</field>
+        <field name="component_type">earning</field>
+        <field name="computation_type">remainder</field>
+        <field name="value">0.0</field>
+    </record>
+    <record id="dayflow_comp_pf_emp" model="dayflow.salary.component">
+        <field name="name">Provident Fund (Employee)</field>
+        <field name="code">PF_EMP</field>
+        <field name="sequence">70</field>
+        <field name="component_type">deduction</field>
+        <field name="computation_type">pct_basic</field>
+        <field name="value">12.0</field>
+    </record>
+    <record id="dayflow_comp_pf_employer" model="dayflow.salary.component">
+        <field name="name">Provident Fund (Employer)</field>
+        <field name="code">PF_EMPLOYER</field>
+        <field name="sequence">80</field>
+        <field name="component_type">deduction</field>
+        <field name="computation_type">pct_basic</field>
+        <field name="value">12.0</field>
+    </record>
+    <record id="dayflow_comp_prof_tax" model="dayflow.salary.component">
+        <field name="name">Professional Tax</field>
+        <field name="code">PROF_TAX</field>
+        <field name="sequence">90</field>
+        <field name="component_type">deduction</field>
+        <field name="computation_type">fixed</field>
+        <field name="value">200.0</field>
+    </record>
+
+    <!-- Leave types, per wireframe: Paid, Sick (needs attachment), Unpaid -->
+    <record id="dayflow_leave_type_paid" model="hr.leave.type">
+        <field name="name">Paid Time Off</field>
+        <field name="requires_allocation">yes</field>
+    </record>
+    <record id="dayflow_leave_type_sick" model="hr.leave.type">
+        <field name="name">Sick Leave</field>
+        <field name="requires_allocation">yes</field>
+        <field name="support_document">True</field>
+    </record>
+    <record id="dayflow_leave_type_unpaid" model="hr.leave.type">
+        <field name="name">Unpaid Leave</field>
+        <field name="requires_allocation">no</field>
+    </record>
+
+    <!-- Sequence for temp passwords used in provisioning -->
+    <record id="dayflow_temp_password_seq" model="ir.sequence">
+        <field name="name">Dayflow Temp Password</field>
+        <field name="code">dayflow.temp.password</field>
+        <field name="padding">6</field>
+    </record>
+</odoo>

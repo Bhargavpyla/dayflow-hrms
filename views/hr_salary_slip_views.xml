@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dayflow_salary_slip_list" model="ir.ui.view">
+        <field name="name">dayflow.salary.slip.list</field>
+        <field name="model">dayflow.salary.slip</field>
+        <field name="arch" type="xml">
+            <tree string="Salary Slips">
+                <field name="employee_id"/>
+                <field name="date_from"/>
+                <field name="date_to"/>
+                <field name="wage"/>
+                <field name="payable_days"/>
+                <field name="net_pay"/>
+                <field name="state" widget="badge"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dayflow_salary_slip_form" model="ir.ui.view">
+        <field name="name">dayflow.salary.slip.form</field>
+        <field name="model">dayflow.salary.slip</field>
+        <field name="arch" type="xml">
+            <form string="Salary Slip">
+                <header>
+                    <button name="action_generate_lines" type="object"
+                            string="(Re)compute Components" class="btn-primary"
+                            invisible="state != 'draft'"/>
+                    <field name="state" widget="statusbar"
+                           statusbar_visible="draft,confirmed,paid"/>
+                </header>
+                <sheet>
+                    <group>
+                        <group>
+                            <field name="employee_id" readonly="state != 'draft'"/>
+                            <field name="date_from" readonly="state != 'draft'"/>
+                            <field name="date_to" readonly="state != 'draft'"/>
+                            <field name="wage" readonly="state != 'draft'"/>
+                        </group>
+                        <group>
+                            <field name="total_working_days"/>
+                            <field name="payable_days"/>
+                            <field name="gross_earnings"/>
+                            <field name="total_deductions"/>
+                            <field name="net_pay"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Salary Components">
+                            <field name="line_ids" readonly="state != 'draft'">
+                                <tree editable="bottom">
+                                    <field name="component_id"/>
+                                    <field name="component_type"/>
+                                    <field name="amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="dayflow_salary_slip_action" model="ir.actions.act_window">
+        <field name="name">Salary Slips</field>
+        <field name="res_model">dayflow.salary.slip</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <record id="dayflow_salary_component_list" model="ir.ui.view">
+        <field name="name">dayflow.salary.component.list</field>
+        <field name="model">dayflow.salary.component</field>
+        <field name="arch" type="xml">
+            <tree string="Salary Components" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="code"/>
+                <field name="component_type"/>
+                <field name="computation_type"/>
+                <field name="value"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="dayflow_salary_component_action" model="ir.actions.act_window">
+        <field name="name">Salary Structure Config</field>
+        <field name="res_model">dayflow.salary.component</field>
+        <field name="view_mode">tree</field>
+    </record>
+
+    <menuitem id="dayflow_menu_payroll"
+              name="Payroll"
+              action="dayflow_salary_slip_action"
+              parent="hr.menu_hr_root"
+              sequence="10"/>
+
+    <menuitem id="dayflow_menu_payroll_config"
+              name="Salary Structure"
+              action="dayflow_salary_component_action"
+              parent="dayflow_menu_payroll"
+              groups="hr.group_hr_manager"
+              sequence="20"/>
+</odoo>

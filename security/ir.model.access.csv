@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_dayflow_salary_slip_employee,dayflow.salary.slip.employee,model_dayflow_salary_slip,base.group_user,1,0,0,0
+access_dayflow_salary_slip_hr,dayflow.salary.slip.hr,model_dayflow_salary_slip,hr.group_hr_user,1,1,1,1
+access_dayflow_salary_slip_line_employee,dayflow.salary.slip.line.employee,model_dayflow_salary_slip_line,base.group_user,1,0,0,0
+access_dayflow_salary_slip_line_hr,dayflow.salary.slip.line.hr,model_dayflow_salary_slip_line,hr.group_hr_user,1,1,1,1
+access_dayflow_salary_component_employee,dayflow.salary.component.employee,model_dayflow_salary_component,base.group_user,1,0,0,0
+access_dayflow_salary_component_hr,dayflow.salary.component.hr,model_dayflow_salary_component,hr.group_hr_manager,1,1,1,1

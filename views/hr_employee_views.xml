@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Add quick-access buttons to the employee form's own profile view -->
+    <record id="dayflow_hr_employee_form_inherit" model="ir.ui.view">
+        <field name="name">dayflow.hr.employee.form.inherit</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('oe_button_box')]" position="inside">
+                <button name="action_dayflow_open_attendance" type="object"
+                        class="oe_stat_button" icon="fa-clock-o">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Attendance</span>
+                    </div>
+                </button>
+                <button name="action_dayflow_open_leaves" type="object"
+                        class="oe_stat_button" icon="fa-calendar">
+                    <field name="dayflow_pending_leaves" widget="statinfo" string="Pending Leaves"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- A dedicated "My Dashboard" kanban - the quick-card feel from the PS -->
+    <record id="dayflow_employee_dashboard_kanban" model="ir.ui.view">
+        <field name="name">dayflow.employee.dashboard.kanban</field>
+        <field name="model">hr.employee</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_dashboard" create="false">
+                <field name="dayflow_pending_leaves"/>
+                <field name="dayflow_leave_balance"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_card oe_kanban_global_click o_kanban_record">
+                            <div class="o_kanban_card_header">
+                                <field name="name"/>
+                            </div>
+                            <ul>
+                                <li>Leave balance: <field name="dayflow_leave_balance"/> days</li>
+                                <li>Pending requests: <field name="dayflow_pending_leaves"/></li>
+                            </ul>
+                            <div class="o_kanban_card_manage_pane">
+                                <button name="action_dayflow_open_attendance" type="object">Attendance</button>
+                                <button name="action_dayflow_open_leaves" type="object">Leave Requests</button>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="dayflow_employee_dashboard_action" model="ir.actions.act_window">
+        <field name="name">My Dashboard</field>
+        <field name="res_model">hr.employee</field>
+        <field name="view_mode">kanban</field>
+        <field name="domain">[('user_id', '=', uid)]</field>
+        <field name="view_id" ref="dayflow_employee_dashboard_kanban"/>
+    </record>
+
+    <menuitem id="dayflow_menu_dashboard"
+              name="My Dashboard"
+              action="dayflow_employee_dashboard_action"
+              parent="hr.menu_hr_root"
+              sequence="1"/>
+</odoo>

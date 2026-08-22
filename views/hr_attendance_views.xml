@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="dayflow_hr_attendance_list_inherit" model="ir.ui.view">
+        <field name="name">dayflow.hr.attendance.list.inherit</field>
+        <field name="model">hr.attendance</field>
+        <field name="inherit_id" ref="hr_attendance.view_attendance_tree"/>
+        <field name="arch" type="xml">
+            <field name="worked_hours" position="after">
+                <field name="dayflow_status" widget="badge"
+                       decoration-success="dayflow_status == 'present'"
+                       decoration-danger="dayflow_status == 'absent'"
+                       decoration-warning="dayflow_status == 'half_day'"
+                       decoration-info="dayflow_status == 'leave'"/>
+            </field>
+        </field>
+    </record>
+</odoo>
