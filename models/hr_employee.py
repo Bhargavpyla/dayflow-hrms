@@ -97,9 +97,19 @@ class HrEmployee(models.Model):
                 ('employee_id', '=', emp.id),
                 ('state', '=', 'confirm'),
             ])
-            # remaining_leaves is a native computed field on hr.employee already,
-            # but we surface it here explicitly for the dashboard card.
-            emp.dayflow_leave_balance = emp.remaining_leaves
+            # In Odoo 17, remaining_leaves was removed from hr.employee.
+            # Calculate remaining allocated days from approved allocations minus validated leaves:
+            allocations = Allocation.search([
+                ('employee_id', '=', emp.id),
+                ('state', '=', 'validate'),
+            ])
+            total_allocated = sum(allocations.mapped('number_of_days'))
+            leaves = Leave.search([
+                ('employee_id', '=', emp.id),
+                ('state', '=', 'validate'),
+            ])
+            total_taken = sum(leaves.mapped('number_of_days'))
+            emp.dayflow_leave_balance = max(0.0, total_allocated - total_taken)
 
     def action_dayflow_open_attendance(self):
         self.ensure_one()

@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from odoo import api, fields, models
 
 
@@ -26,13 +27,15 @@ class HrAttendance(models.Model):
                 continue
 
             check_date = record.check_in.date()
+            day_start = fields.Datetime.to_string(datetime.combine(check_date, time.min))
+            day_end = fields.Datetime.to_string(datetime.combine(check_date, time.max))
 
             # Was the employee on approved leave that day?
             on_leave = Leave.search_count([
                 ('employee_id', '=', record.employee_id.id),
                 ('state', '=', 'validate'),
-                ('date_from', '<=', check_date),
-                ('date_to', '>=', check_date),
+                ('date_from', '<=', day_end),
+                ('date_to', '>=', day_start),
             ])
             if on_leave:
                 record.dayflow_status = 'leave'

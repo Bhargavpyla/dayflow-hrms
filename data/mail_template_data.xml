@@ -14,7 +14,7 @@
                     <strong t-out="object.state == 'validate' and 'approved' or 'rejected'"/>.
                 </p>
                 <p t-if="object.state != 'validate'">
-                    Reason / comments: <t t-out="object.report_note or 'None provided'"/>
+                    Reason / comments: <t t-out="getattr(object, 'report_note', getattr(object, 'name', 'None provided')) or 'None provided'"/>
                 </p>
                 <p>— Dayflow HRMS</p>
             </div>

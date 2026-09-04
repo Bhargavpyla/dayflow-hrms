@@ -1,3 +1,4 @@
+from datetime import datetime, time
 from odoo import api, fields, models
 
 
@@ -103,21 +104,25 @@ class DayflowSalarySlip(models.Model):
             total_days = (rec.date_to - rec.date_from).days + 1
             rec.total_working_days = total_days
 
+            dt_start = fields.Datetime.to_string(datetime.combine(rec.date_from, time.min))
+            dt_end = fields.Datetime.to_string(datetime.combine(rec.date_to, time.max))
+
             present_days = Attendance.search_count([
                 ('employee_id', '=', rec.employee_id.id),
-                ('check_in', '>=', rec.date_from),
-                ('check_in', '<=', rec.date_to),
+                ('check_in', '>=', dt_start),
+                ('check_in', '<=', dt_end),
                 ('dayflow_status', 'in', ('present', 'half_day')),
             ])
-            paid_leave_days = Leave.search_count([
+            paid_leaves = Leave.search([
                 ('employee_id', '=', rec.employee_id.id),
                 ('state', '=', 'validate'),
                 ('holiday_status_id.name', 'not in', ('Unpaid Leave',)),
-                ('date_from', '<=', rec.date_to),
-                ('date_to', '>=', rec.date_from),
+                ('date_from', '<=', dt_end),
+                ('date_to', '>=', dt_start),
             ])
+            paid_leave_days = sum(paid_leaves.mapped('number_of_days'))
             # Unpaid leave / no attendance / no leave record = unpayable day.
-            rec.payable_days = min(total_days, present_days + paid_leave_days)
+            rec.payable_days = min(total_days, int(present_days + paid_leave_days))
 
     @api.depends('wage', 'line_ids.amount', 'line_ids.component_type')
     def _compute_totals(self):
